@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import json
+import re
 
 # Título de la aplicación
 st.title("Generador de Bestseller de No Ficción para Amazon")
@@ -74,43 +75,40 @@ if st.button("Generar Bestseller"):
             
             # Crear el prompt para Together
             prompt = f"""
-            Basándote en la siguiente información sobre bestsellers de no ficción en Amazon, genera un título atractivo, una descripción persuasiva y una tabla de contenidos detallada para un nuevo libro que podría ser un éxito de ventas.
+Basándote en la siguiente información sobre bestsellers de no ficción en Amazon, genera un título atractivo, una descripción persuasiva y una tabla de contenidos detallada para un nuevo libro que podría ser un éxito de ventas.
 
-            Información de referencia:
-            {snippets}
+Información de referencia:
+{snippets}
 
-            Por favor, proporciona:
-            1. Título del libro
-            2. Descripción del libro
-            3. Tabla de Contenidos con al menos 10 capítulos
-            """
+Por favor, proporciona:
+
+Título del libro:
+Descripción del libro:
+Tabla de Contenidos:
+"""
             
             with st.spinner("Generando contenido..."):
                 contenido = generar_contenido(prompt)
             
             if contenido:
-                # Separar el contenido en partes
-                partes = contenido.split("\n\n")
-                titulo = ""
-                descripcion = ""
-                tabla_contenidos = ""
-                for parte in partes:
-                    if "Título" in parte:
-                        titulo = parte.split("Título del libro")[1].strip(" :\n")
-                    elif "Descripción" in parte:
-                        descripcion = parte.split("Descripción del libro")[1].strip(" :\n")
-                    elif "Tabla de Contenidos" in parte:
-                        tabla_contenidos = parte.split("Tabla de Contenidos")[1].strip(" :\n")
+                st.subheader("Contenido Generado")
+                st.text(contenido)
+                
+                # Utilizar expresiones regulares para extraer las secciones
+                titulo_match = re.search(r"Título del libro[:\s]*(.*)", contenido, re.IGNORECASE)
+                descripcion_match = re.search(r"Descripción del libro[:\s]*(.*)", contenido, re.IGNORECASE)
+                tabla_match = re.search(r"Tabla de Contenidos[:\s]*(.*)", contenido, re.IGNORECASE | re.DOTALL)
+                
+                titulo = titulo_match.group(1).strip() if titulo_match else "No se pudo extraer el título."
+                descripcion = descripcion_match.group(1).strip() if descripcion_match else "No se pudo extraer la descripción."
+                tabla_contenidos = tabla_match.group(1).strip() if tabla_match else "No se pudo extraer la tabla de contenidos."
                 
                 # Mostrar los resultados
                 st.subheader("Título del Libro")
-                st.success(titulo if titulo else "No se pudo extraer el título.")
+                st.success(titulo)
                 
                 st.subheader("Descripción del Libro")
-                st.info(descripcion if descripcion else "No se pudo extraer la descripción.")
+                st.info(descripcion)
                 
                 st.subheader("Tabla de Contenidos")
-                if tabla_contenidos:
-                    st.text(tabla_contenidos)
-                else:
-                    st.warning("No se pudo extraer la tabla de contenidos.")
+                st.text(tabla_contenidos)
