@@ -8,7 +8,7 @@ st.title("Generador de Bestseller de No Ficción para Amazon")
 
 # Descripción de la aplicación
 st.write("""
-Esta aplicación genera un posible bestseller de no ficción que podría venderse en Amazon, basado en el rango de edad, el área geográfica y el género del lector, realizando una búsqueda en Amazon utilizando la API de Serper.
+Esta aplicación genera un posible bestseller de no ficción que podría venderse en Amazon, basado en el tema que elijas. Los campos de rango de edad, área geográfica y género son opcionales.
 """)
 
 # Función para realizar una búsqueda con la API de Serper
@@ -28,14 +28,14 @@ def buscar_serper(query):
         st.error(f"Error en la búsqueda: {response.status_code}")
         return None
 
-# Función para generar el contenido basado en el rango de edad, área geográfica y género
-def generar_bestseller(resultados, rango_edad, area_geografica, genero):
+# Función para generar el contenido basado en los resultados, tema, rango de edad, área geográfica y género
+def generar_bestseller(resultados, tema, rango_edad, area_geografica, genero):
     snippets = ""
     for item in resultados.get("organic", [])[:3]:  # Tomamos los primeros 3 resultados
         snippets += f"{item.get('title')}:\n{item.get('snippet')}\n\n"
 
     # Generar título basado en los resultados obtenidos
-    titulo = f"Bestseller Inspirado en {rango_edad} en {area_geografica} para {genero}"
+    titulo = f"Bestseller sobre {tema} para {rango_edad} en {area_geografica} para {genero}"
     
     # Crear una tabla de contenidos basada en los snippets
     tabla_contenidos = re.findall(r"\b\d+\.\s+[A-Za-z0-9 ,'.]+", snippets)
@@ -43,38 +43,54 @@ def generar_bestseller(resultados, rango_edad, area_geografica, genero):
         # Si no se encuentran capítulos específicos, generar una tabla de contenidos genérica
         tabla_contenidos = [
             "1. Introducción",
-            "2. Retos y Oportunidades",
-            "3. Innovación y Crecimiento",
-            "4. Cómo Adaptarse a un Mundo Cambiante",
-            "5. Conclusión"
+            f"2. El impacto de {tema} en la sociedad",
+            "3. Retos y Oportunidades",
+            f"4. {tema} en el contexto de {area_geografica}",
+            "5. Innovación y Crecimiento",
+            "6. Conclusión"
         ]
 
     return titulo, tabla_contenidos
 
-# Selección de rango de edad
-rango_edad = st.selectbox("Selecciona el rango de edad del público objetivo:", 
-                          ["15-25", "25-35", "35-45", "45-55", "55-65", "65-75", "75-85", "85-95"])
+# Entrada del usuario para el tema del libro (obligatorio)
+tema = st.text_input("Introduce el tema principal del libro de no ficción (obligatorio):", "")
 
-# Selección de área geográfica
-area_geografica = st.selectbox("Selecciona el área geográfica:", 
-                               ["Estados Unidos", "Latinoamérica", "Europa"])
+# Selección de rango de edad (opcional)
+rango_edad = st.selectbox("Selecciona el rango de edad del público objetivo (opcional):", 
+                          ["No especificar", "15-25", "25-35", "35-45", "45-55", "55-65", "65-75", "75-85", "85-95"])
 
-# Selección del género del lector
-genero = st.selectbox("Selecciona el género del lector:", ["Femenino", "Masculino"])
+# Selección de área geográfica (opcional)
+area_geografica = st.selectbox("Selecciona el área geográfica (opcional):", 
+                               ["No especificar", "Estados Unidos", "Latinoamérica", "Europa"])
+
+# Selección del género del lector (opcional)
+genero = st.selectbox("Selecciona el género del lector (opcional):", ["No especificar", "Femenino", "Masculino"])
 
 # Botón para generar el bestseller
 if st.button("Generar Bestseller"):
-    with st.spinner("Realizando búsqueda en Amazon..."):
-        query = f"bestsellers de no ficción en Amazon para {rango_edad} en {area_geografica} para {genero}"
-        resultados = buscar_serper(query)
+    if tema.strip() == "":
+        st.warning("Por favor, introduce un tema para generar el bestseller.")
+    else:
+        # Asignar valores predeterminados si no se especifican los campos opcionales
+        if rango_edad == "No especificar":
+            rango_edad = "todas las edades"
+        if area_geografica == "No especificar":
+            area_geografica = "cualquier lugar"
+        if genero == "No especificar":
+            genero = "todas las personas"
         
-        if resultados:
-            # Generar título y tabla de contenidos a partir de los resultados
-            titulo, tabla_contenidos = generar_bestseller(resultados, rango_edad, area_geografica, genero)
+        # Realizar la búsqueda con Serper
+        with st.spinner("Realizando búsqueda en Amazon..."):
+            query = f"bestsellers de no ficción sobre {tema} para {rango_edad} en {area_geografica} para {genero}"
+            resultados = buscar_serper(query)
             
-            # Mostrar los resultados
-            st.subheader("Título del Libro")
-            st.success(titulo)
-            
-            st.subheader("Tabla de Contenidos")
-            st.text("\n".join(tabla_contenidos))
+            if resultados:
+                # Generar título y tabla de contenidos a partir de los resultados
+                titulo, tabla_contenidos = generar_bestseller(resultados, tema, rango_edad, area_geografica, genero)
+                
+                # Mostrar los resultados
+                st.subheader("Título del Libro")
+                st.success(titulo)
+                
+                st.subheader("Tabla de Contenidos")
+                st.text("\n".join(tabla_contenidos))
