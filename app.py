@@ -1,125 +1,106 @@
 import streamlit as st
-import requests
-import json
-import re
 
-# Título de la aplicación 
+# Título de la aplicación
 st.title("Generador de Bestseller de No Ficción para Amazon")
 
 # Descripción de la aplicación
 st.write("""
-Esta aplicación utiliza las APIs de **Together** y **Serper** para investigar y generar el título, la descripción y la tabla de contenidos de un posible bestseller de no ficción que podría venderse en Amazon.
+Esta aplicación genera un posible bestseller de no ficción que podría venderse en Amazon, basado en el rango de edad, el área geográfica y el género del lector.
 """)
 
-# Función para realizar una búsqueda con la API de Serper
-def buscar_serper(query):
-    url = "https://google.serper.dev/search"
-    headers = {
-        "X-API-KEY": st.secrets["SERPER_API_KEY"],
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "q": query
-    }
-    response = requests.post(url, headers=headers, data=json.dumps(payload))
-    if response.status_code == 200:
-        return response.json()
+# Función para generar el contenido basado en el rango de edad, área geográfica y género
+def generar_bestseller(rango_edad, area_geografica, genero):
+    if rango_edad == "15-25" and area_geografica == "Estados Unidos" and genero == "Femenino":
+        titulo = "Empowerment: Building Confidence in a Digital World"
+        tabla_contenidos = [
+            "1. Redefiniendo Belleza: Más Allá de los Filtros y Likes",
+            "2. Salud Mental y Autoestima: Superando la Presión Social",
+            "3. Empoderamiento Femenino: Ser Tu Propia Líder",
+            "4. Igualdad y Activismo: Rompiendo Barreras en el Siglo XXI",
+            "5. Relaciones Saludables: Creando Vínculos Sólidos en la Era Digital",
+            "6. Encontrando tu Voz: Expresión Personal y Profesional",
+            "7. Crecimiento y Futuro: Construyendo tu Propio Camino"
+        ]
+    elif rango_edad == "15-25" and area_geografica == "Estados Unidos" and genero == "Masculino":
+        titulo = "Finding Purpose: Navigating Life in a Digital World"
+        tabla_contenidos = [
+            "1. La Era de la Ansiedad: Cómo las Redes Sociales Moldean Nuestra Identidad",
+            "2. Desbloquear tu Propósito: Más Allá del Éxito Superficial",
+            "3. Equilibrar Expectativas: Familia, Amigos y Relaciones en la Era Digital",
+            "4. Convertir Pasión en Profesión: Emprendimiento Joven",
+            "5. Salud Mental y Autocuidado: Superar el Burnout",
+            "6. Activismo y Cambio Social: Cómo Hacer que tu Voz Sea Escuchada",
+            "7. Creando una Vida con Propósito: Planificar tu Futuro"
+        ]
+    elif rango_edad == "25-35" and area_geografica == "Latinoamérica" and genero == "Femenino":
+        titulo = "Rompiendo Barreras: Mujeres Líderes en Latinoamérica"
+        tabla_contenidos = [
+            "1. Liderazgo Femenino: Superando los Desafíos Culturales",
+            "2. Emprendimiento en Economías Emergentes: Historias de Éxito",
+            "3. Igualdad Salarial: Avances y Retos en Latinoamérica",
+            "4. Creando Redes: El Poder de la Comunidad Femenina",
+            "5. Innovación y Creatividad: Construyendo el Futuro Profesional",
+            "6. Balance Trabajo-Vida Personal: Cómo Lograrlo",
+            "7. Empoderamiento y Futuro: La Próxima Generación de Líderes"
+        ]
+    elif rango_edad == "25-35" and area_geografica == "Latinoamérica" and genero == "Masculino":
+        titulo = "Rompiendo Barreras: El Camino al Éxito Profesional en Latinoamérica"
+        tabla_contenidos = [
+            "1. La Realidad del Emprendimiento en Latinoamérica",
+            "2. Networking: Creando Oportunidades Profesionales en Economías Emergentes",
+            "3. Superando la Brecha Salarial: Estrategias para Maximizar tu Potencial",
+            "4. Hacer más con menos: Innovación en Tiempos de Crisis",
+            "5. Liderazgo Resiliente: Cómo Adaptarte a los Cambios Económicos",
+            "6. Mujeres y Minorías: Liderando el Cambio en el Mundo Empresarial",
+            "7. Trabajo y Vida Personal: Encontrando el Equilibrio en un Mundo Competitivo"
+        ]
+    elif rango_edad == "35-45" and area_geografica == "Europa" and genero == "Femenino":
+        titulo = "El Poder de la Innovación: Mujeres que Lideran en Europa"
+        tabla_contenidos = [
+            "1. Innovación y Sustentabilidad: Las Nuevas Fronteras",
+            "2. Liderazgo Femenino en Europa: Nuevas Oportunidades",
+            "3. Retos Económicos: Cómo Superar las Barreras Sistémicas",
+            "4. Tecnología y Creatividad: Mujeres Emprendedoras",
+            "5. Trabajo Remoto: Cambiando las Normas en Europa",
+            "6. Políticas y Regulaciones: Cómo Navegar el Panorama Europeo",
+            "7. Futuro del Trabajo: Preparándote para lo que Viene"
+        ]
+    elif rango_edad == "35-45" and area_geografica == "Europa" and genero == "Masculino":
+        titulo = "El Poder de la Innovación: Cómo Liderar en la Economía Europea"
+        tabla_contenidos = [
+            "1. Innovación y Sustentabilidad: Las Nuevas Fronteras",
+            "2. Liderazgo Global: Europa como Potencia en el Siglo XXI",
+            "3. Retos Económicos: Adaptarse a un Mundo Cambiante",
+            "4. Tecnología y Emprendimiento: El Nuevo Camino hacia el Éxito",
+            "5. Trabajo Remoto: Cambiando las Normas en Europa",
+            "6. Políticas y Regulaciones: Cómo Navegar el Panorama Europeo",
+            "7. Futuro del Trabajo: Preparándote para lo que Viene"
+        ]
     else:
-        st.error(f"Error en la búsqueda: {response.status_code}")
-        return None
+        titulo = "Título por Definir"
+        tabla_contenidos = ["1. Capítulo 1", "2. Capítulo 2", "3. Capítulo 3"]
 
-# Función para generar contenido con la API de Together
-def generar_contenido(prompt):
-    url = "https://api.together.xyz/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {st.secrets['TOGETHER_API_KEY']}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": "Qwen/Qwen2.5-7B-Instruct-Turbo",
-        "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 2000,
-        "temperature": 0.7,
-        "top_p": 0.7,
-        "top_k": 50,
-        "repetition_penalty": 1,
-        "stop": ["<|eot_id|>"],
-        "stream": False  # Para simplificar, usamos stream=False
-    }
-    response = requests.post(url, headers=headers, json=payload)
-    if response.status_code == 200:
-        data = response.json()
-        return data.get("choices", [{}])[0].get("message", {}).get("content", "")
-    else:
-        st.error(f"Error al generar contenido: {response.status_code}")
-        return ""
+    return titulo, tabla_contenidos
 
-# Entrada del usuario para el tema del libro
-tema = st.text_input("Introduce el tema principal del libro de no ficción:", "")
+# Selección de rango de edad
+rango_edad = st.selectbox("Selecciona el rango de edad del público objetivo:", 
+                          ["15-25", "25-35", "35-45", "45-55", "55-65", "65-75", "75-85", "85-95"])
 
-# Entrada del usuario para el número de capítulos
-numero_caps = st.number_input("Número de capítulos deseados:", min_value=5, max_value=20, value=10, step=1)
+# Selección de área geográfica
+area_geografica = st.selectbox("Selecciona el área geográfica:", 
+                               ["Estados Unidos", "Latinoamérica", "Europa"])
+
+# Selección del género del lector
+genero = st.selectbox("Selecciona el género del lector:", ["Femenino", "Masculino"])
 
 # Botón para generar el bestseller
 if st.button("Generar Bestseller"):
-    if tema.strip() == "":
-        st.warning("Por favor, introduce un tema para generar el bestseller.")
-    else:
-        with st.spinner("Realizando investigación..."):
-            # Realizar una búsqueda para obtener información relevante
-            resultados = buscar_serper(f"bestsellers de no ficción en Amazon sobre {tema}")
+    with st.spinner("Generando el libro basado en las selecciones..."):
+        titulo, tabla_contenidos = generar_bestseller(rango_edad, area_geografica, genero)
         
-        if resultados:
-            # Preparar la información para el prompt
-            # Por ejemplo, extraer algunos snippets de los resultados de búsqueda
-            snippets = ""
-            for item in resultados.get("organic", [])[:3]:  # Tomamos los primeros 3 resultados
-                snippets += f"{item.get('title')}:\n{item.get('snippet')}\n\n"
-            
-            # Crear el prompt para Together
-            prompt = f"""
-Basándote en la siguiente información sobre bestsellers de no ficción en Amazon, genera un título atractivo, una descripción persuasiva y una tabla de contenidos detallada para un nuevo libro que podría ser un éxito de ventas.
-
-Información de referencia:
-{snippets}
-
-Por favor, proporciona:
-
-Título del libro:
-Descripción del libro:
-Tabla de Contenidos (con {numero_caps} capítulos):
-"""
-            
-            with st.spinner("Generando contenido..."):
-                contenido = generar_contenido(prompt)
-            
-            if contenido:
-                st.subheader("Contenido Generado")
-                st.text(contenido)
-                
-                # Utilizar expresiones regulares para extraer las secciones 
-                titulo_match = re.search(r"Título del libro[:\s]*(.*)", contenido, re.IGNORECASE)
-                descripcion_match = re.search(r"Descripción del libro[:\s]*(.*)", contenido, re.IGNORECASE)
-                tabla_match = re.search(r"Tabla de Contenidos[:\s]*(.*)", contenido, re.IGNORECASE | re.DOTALL)
-                
-                titulo = titulo_match.group(1).strip() if titulo_match else "No se pudo extraer el título."
-                descripcion = descripcion_match.group(1).strip() if descripcion_match else "No se pudo extraer la descripción."
-                tabla_contenidos = tabla_match.group(1).strip() if tabla_match else "No se pudo extraer la tabla de contenidos."
-                
-                # Contar los capítulos generados
-                capitulos = re.findall(r"\d+\.\s+.+", tabla_contenidos)
-                numero_de_capitulos = len(capitulos)
-                
-                # Mostrar advertencia si el número de capítulos es menor que el solicitado
-                if numero_de_capitulos < numero_caps:
-                    st.warning(f"Solo se generaron {numero_de_capitulos} capítulos, en lugar de los {numero_caps} solicitados.")
-                
-                # Mostrar los resultados
-                st.subheader("Título del Libro")
-                st.success(titulo)
-                
-                st.subheader("Descripción del Libro")
-                st.info(descripcion)
-                
-                st.subheader("Tabla de Contenidos")
-                st.text("\n".join(capitulos))
+        # Mostrar los resultados
+        st.subheader("Título del Libro")
+        st.success(titulo)
+        
+        st.subheader("Tabla de Contenidos")
+        st.text("\n".join(tabla_contenidos))
