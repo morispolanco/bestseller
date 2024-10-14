@@ -97,7 +97,7 @@ Tabla de Contenidos (con {numero_caps} capítulos):
                 st.subheader("Contenido Generado")
                 st.text(contenido)
                 
-                # Utilizar expresiones regulares para extraer las secciones
+                # Utilizar expresiones regulares para extraer las secciones 
                 titulo_match = re.search(r"Título del libro[:\s]*(.*)", contenido, re.IGNORECASE)
                 descripcion_match = re.search(r"Descripción del libro[:\s]*(.*)", contenido, re.IGNORECASE)
                 tabla_match = re.search(r"Tabla de Contenidos[:\s]*(.*)", contenido, re.IGNORECASE | re.DOTALL)
