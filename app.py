@@ -57,6 +57,9 @@ def generar_contenido(prompt):
 # Entrada del usuario para el tema del libro
 tema = st.text_input("Introduce el tema principal del libro de no ficción:", "")
 
+# Entrada del usuario para el número de capítulos
+numero_caps = st.number_input("Número de capítulos deseados:", min_value=5, max_value=20, value=10, step=1)
+
 # Botón para generar el bestseller
 if st.button("Generar Bestseller"):
     if tema.strip() == "":
@@ -84,7 +87,7 @@ Por favor, proporciona:
 
 Título del libro:
 Descripción del libro:
-Tabla de Contenidos:
+Tabla de Contenidos (con {numero_caps} capítulos):
 """
             
             with st.spinner("Generando contenido..."):
@@ -103,6 +106,14 @@ Tabla de Contenidos:
                 descripcion = descripcion_match.group(1).strip() if descripcion_match else "No se pudo extraer la descripción."
                 tabla_contenidos = tabla_match.group(1).strip() if tabla_match else "No se pudo extraer la tabla de contenidos."
                 
+                # Contar los capítulos generados
+                capitulos = re.findall(r"\d+\.\s+.+", tabla_contenidos)
+                numero_de_capitulos = len(capitulos)
+                
+                # Mostrar advertencia si el número de capítulos es menor que el solicitado
+                if numero_de_capitulos < numero_caps:
+                    st.warning(f"Solo se generaron {numero_de_capitulos} capítulos, en lugar de los {numero_caps} solicitados.")
+                
                 # Mostrar los resultados
                 st.subheader("Título del Libro")
                 st.success(titulo)
@@ -111,4 +122,4 @@ Tabla de Contenidos:
                 st.info(descripcion)
                 
                 st.subheader("Tabla de Contenidos")
-                st.text(tabla_contenidos)
+                st.text("\n".join(capitulos))
