@@ -1,84 +1,53 @@
 import streamlit as st
+import requests
+import json
+import re
 
 # Título de la aplicación
 st.title("Generador de Bestseller de No Ficción para Amazon")
 
 # Descripción de la aplicación
 st.write("""
-Esta aplicación genera un posible bestseller de no ficción que podría venderse en Amazon, basado en el rango de edad, el área geográfica y el género del lector.
+Esta aplicación genera un posible bestseller de no ficción que podría venderse en Amazon, basado en el rango de edad, el área geográfica y el género del lector, realizando una búsqueda en Amazon utilizando la API de Serper.
 """)
 
-# Función para generar el contenido basado en el rango de edad, área geográfica y género
-def generar_bestseller(rango_edad, area_geografica, genero):
-    if rango_edad == "15-25" and area_geografica == "Estados Unidos" and genero == "Femenino":
-        titulo = "Empowerment: Building Confidence in a Digital World"
-        tabla_contenidos = [
-            "1. Redefiniendo Belleza: Más Allá de los Filtros y Likes",
-            "2. Salud Mental y Autoestima: Superando la Presión Social",
-            "3. Empoderamiento Femenino: Ser Tu Propia Líder",
-            "4. Igualdad y Activismo: Rompiendo Barreras en el Siglo XXI",
-            "5. Relaciones Saludables: Creando Vínculos Sólidos en la Era Digital",
-            "6. Encontrando tu Voz: Expresión Personal y Profesional",
-            "7. Crecimiento y Futuro: Construyendo tu Propio Camino"
-        ]
-    elif rango_edad == "15-25" and area_geografica == "Estados Unidos" and genero == "Masculino":
-        titulo = "Finding Purpose: Navigating Life in a Digital World"
-        tabla_contenidos = [
-            "1. La Era de la Ansiedad: Cómo las Redes Sociales Moldean Nuestra Identidad",
-            "2. Desbloquear tu Propósito: Más Allá del Éxito Superficial",
-            "3. Equilibrar Expectativas: Familia, Amigos y Relaciones en la Era Digital",
-            "4. Convertir Pasión en Profesión: Emprendimiento Joven",
-            "5. Salud Mental y Autocuidado: Superar el Burnout",
-            "6. Activismo y Cambio Social: Cómo Hacer que tu Voz Sea Escuchada",
-            "7. Creando una Vida con Propósito: Planificar tu Futuro"
-        ]
-    elif rango_edad == "25-35" and area_geografica == "Latinoamérica" and genero == "Femenino":
-        titulo = "Rompiendo Barreras: Mujeres Líderes en Latinoamérica"
-        tabla_contenidos = [
-            "1. Liderazgo Femenino: Superando los Desafíos Culturales",
-            "2. Emprendimiento en Economías Emergentes: Historias de Éxito",
-            "3. Igualdad Salarial: Avances y Retos en Latinoamérica",
-            "4. Creando Redes: El Poder de la Comunidad Femenina",
-            "5. Innovación y Creatividad: Construyendo el Futuro Profesional",
-            "6. Balance Trabajo-Vida Personal: Cómo Lograrlo",
-            "7. Empoderamiento y Futuro: La Próxima Generación de Líderes"
-        ]
-    elif rango_edad == "25-35" and area_geografica == "Latinoamérica" and genero == "Masculino":
-        titulo = "Rompiendo Barreras: El Camino al Éxito Profesional en Latinoamérica"
-        tabla_contenidos = [
-            "1. La Realidad del Emprendimiento en Latinoamérica",
-            "2. Networking: Creando Oportunidades Profesionales en Economías Emergentes",
-            "3. Superando la Brecha Salarial: Estrategias para Maximizar tu Potencial",
-            "4. Hacer más con menos: Innovación en Tiempos de Crisis",
-            "5. Liderazgo Resiliente: Cómo Adaptarte a los Cambios Económicos",
-            "6. Mujeres y Minorías: Liderando el Cambio en el Mundo Empresarial",
-            "7. Trabajo y Vida Personal: Encontrando el Equilibrio en un Mundo Competitivo"
-        ]
-    elif rango_edad == "35-45" and area_geografica == "Europa" and genero == "Femenino":
-        titulo = "El Poder de la Innovación: Mujeres que Lideran en Europa"
-        tabla_contenidos = [
-            "1. Innovación y Sustentabilidad: Las Nuevas Fronteras",
-            "2. Liderazgo Femenino en Europa: Nuevas Oportunidades",
-            "3. Retos Económicos: Cómo Superar las Barreras Sistémicas",
-            "4. Tecnología y Creatividad: Mujeres Emprendedoras",
-            "5. Trabajo Remoto: Cambiando las Normas en Europa",
-            "6. Políticas y Regulaciones: Cómo Navegar el Panorama Europeo",
-            "7. Futuro del Trabajo: Preparándote para lo que Viene"
-        ]
-    elif rango_edad == "35-45" and area_geografica == "Europa" and genero == "Masculino":
-        titulo = "El Poder de la Innovación: Cómo Liderar en la Economía Europea"
-        tabla_contenidos = [
-            "1. Innovación y Sustentabilidad: Las Nuevas Fronteras",
-            "2. Liderazgo Global: Europa como Potencia en el Siglo XXI",
-            "3. Retos Económicos: Adaptarse a un Mundo Cambiante",
-            "4. Tecnología y Emprendimiento: El Nuevo Camino hacia el Éxito",
-            "5. Trabajo Remoto: Cambiando las Normas en Europa",
-            "6. Políticas y Regulaciones: Cómo Navegar el Panorama Europeo",
-            "7. Futuro del Trabajo: Preparándote para lo que Viene"
-        ]
+# Función para realizar una búsqueda con la API de Serper
+def buscar_serper(query):
+    url = "https://google.serper.dev/search"
+    headers = {
+        "X-API-KEY": st.secrets["SERPER_API_KEY"],  # Asegúrate de tener tu clave en secrets
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "q": query
+    }
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    if response.status_code == 200:
+        return response.json()
     else:
-        titulo = "Título por Definir"
-        tabla_contenidos = ["1. Capítulo 1", "2. Capítulo 2", "3. Capítulo 3"]
+        st.error(f"Error en la búsqueda: {response.status_code}")
+        return None
+
+# Función para generar el contenido basado en el rango de edad, área geográfica y género
+def generar_bestseller(resultados, rango_edad, area_geografica, genero):
+    snippets = ""
+    for item in resultados.get("organic", [])[:3]:  # Tomamos los primeros 3 resultados
+        snippets += f"{item.get('title')}:\n{item.get('snippet')}\n\n"
+
+    # Generar título basado en los resultados obtenidos
+    titulo = f"Bestseller Inspirado en {rango_edad} en {area_geografica} para {genero}"
+    
+    # Crear una tabla de contenidos basada en los snippets
+    tabla_contenidos = re.findall(r"\b\d+\.\s+[A-Za-z0-9 ,'.]+", snippets)
+    if not tabla_contenidos:
+        # Si no se encuentran capítulos específicos, generar una tabla de contenidos genérica
+        tabla_contenidos = [
+            "1. Introducción",
+            "2. Retos y Oportunidades",
+            "3. Innovación y Crecimiento",
+            "4. Cómo Adaptarse a un Mundo Cambiante",
+            "5. Conclusión"
+        ]
 
     return titulo, tabla_contenidos
 
@@ -95,12 +64,17 @@ genero = st.selectbox("Selecciona el género del lector:", ["Femenino", "Masculi
 
 # Botón para generar el bestseller
 if st.button("Generar Bestseller"):
-    with st.spinner("Generando el libro basado en las selecciones..."):
-        titulo, tabla_contenidos = generar_bestseller(rango_edad, area_geografica, genero)
+    with st.spinner("Realizando búsqueda en Amazon..."):
+        query = f"bestsellers de no ficción en Amazon para {rango_edad} en {area_geografica} para {genero}"
+        resultados = buscar_serper(query)
         
-        # Mostrar los resultados
-        st.subheader("Título del Libro")
-        st.success(titulo)
-        
-        st.subheader("Tabla de Contenidos")
-        st.text("\n".join(tabla_contenidos))
+        if resultados:
+            # Generar título y tabla de contenidos a partir de los resultados
+            titulo, tabla_contenidos = generar_bestseller(resultados, rango_edad, area_geografica, genero)
+            
+            # Mostrar los resultados
+            st.subheader("Título del Libro")
+            st.success(titulo)
+            
+            st.subheader("Tabla de Contenidos")
+            st.text("\n".join(tabla_contenidos))
