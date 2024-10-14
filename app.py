@@ -35,7 +35,7 @@ def generar_bestseller(resultados, tema, rango_edad, area_geografica, genero):
         snippets += f"{item.get('title')}:\n{item.get('snippet')}\n\n"
 
     # Generar título basado en los resultados obtenidos
-    titulo = f"Bestseller sobre {tema} para {rango_edad} en {area_geografica} para {genero}"
+    titulo = f"Explorando {tema} para {rango_edad} en {area_geografica} dirigido a {genero}"
     
     # Crear una tabla de contenidos basada en los snippets
     tabla_contenidos = re.findall(r"\b\d+\.\s+[A-Za-z0-9 ,'.]+", snippets)
@@ -87,7 +87,7 @@ if st.button("Generar Bestseller"):
         if area_geografica == "No especificar":
             area_geografica = "cualquier lugar"
         if genero == "No especificar":
-            genero = "todas las personas"
+            genero = "todos los públicos"
         
         # Realizar la búsqueda con Serper
         with st.spinner("Realizando búsqueda en Amazon..."):
