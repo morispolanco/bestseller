@@ -8,7 +8,7 @@ st.title("Generador de Bestseller de No Ficción para Amazon")
 
 # Descripción de la aplicación
 st.write("""
-Esta aplicación genera un posible bestseller de no ficción que podría venderse en Amazon, basado en el tema que elijas. Los campos de rango de edad, área geográfica y género son opcionales.
+Esta aplicación genera un posible bestseller de no ficción que podría venderse en Amazon, basado en el tema que elijas. Los campos de rango de edad, área geográfica y género son opcionales. También generará una descripción larga del libro.
 """)
 
 # Función para realizar una búsqueda con la API de Serper
@@ -49,8 +49,18 @@ def generar_bestseller(resultados, tema, rango_edad, area_geografica, genero):
             "5. Innovación y Crecimiento",
             "6. Conclusión"
         ]
-
-    return titulo, tabla_contenidos
+    
+    # Generar una descripción larga basada en los datos y el tema
+    descripcion = (f"Este libro explora en profundidad el tema de {tema} y cómo influye "
+                   f"en {rango_edad} de {area_geografica}. Diseñado para {genero}, ofrece "
+                   f"una mirada única y detallada sobre los retos y oportunidades que presenta "
+                   f"{tema} en el mundo actual. A través de capítulos cuidadosamente organizados, "
+                   f"los lectores encontrarán valiosos insights sobre el impacto de {tema} en diversas "
+                   f"esferas, así como estrategias para aprovechar su potencial en contextos personales "
+                   f"y profesionales. Este libro es una guía esencial para aquellos interesados en "
+                   f"comprender y adaptarse a los cambios impulsados por {tema} en la sociedad.")
+    
+    return titulo, tabla_contenidos, descripcion
 
 # Entrada del usuario para el tema del libro (obligatorio)
 tema = st.text_input("Introduce el tema principal del libro de no ficción (obligatorio):", "")
@@ -85,8 +95,8 @@ if st.button("Generar Bestseller"):
             resultados = buscar_serper(query)
             
             if resultados:
-                # Generar título y tabla de contenidos a partir de los resultados
-                titulo, tabla_contenidos = generar_bestseller(resultados, tema, rango_edad, area_geografica, genero)
+                # Generar título, tabla de contenidos y descripción a partir de los resultados
+                titulo, tabla_contenidos, descripcion = generar_bestseller(resultados, tema, rango_edad, area_geografica, genero)
                 
                 # Mostrar los resultados
                 st.subheader("Título del Libro")
@@ -94,3 +104,6 @@ if st.button("Generar Bestseller"):
                 
                 st.subheader("Tabla de Contenidos")
                 st.text("\n".join(tabla_contenidos))
+                
+                st.subheader("Descripción del Libro")
+                st.info(descripcion)
